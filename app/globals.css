@@ -1,0 +1,161 @@
+@import "@fontsource/anton/400.css";
+@import "@fontsource-variable/inter/index.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================
+   SYNC DESIGN SYSTEM
+   Colour balance: 75% black surfaces · 15% white/grey · 10% green
+   Type: Anton (display) + Inter (everything else)
+   Spacing: 4px base; sections use --section, gutters use --gutter
+   Motion: ease-luxe (0.22,1,0.36,1); 500–900ms; never blocks use
+   ========================================================== */
+
+:root {
+  --ink: #000000;
+  --deep: #080808;
+  --charcoal: #121212;
+  --graphite: #1c1c1c;
+  --snow: #f5f5f5;
+  --mist: #d6d6d6;
+  --sync: #65cc00;
+  --volt: #80ff00;
+  --ease-luxe: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  background: var(--deep);
+  color-scheme: dark;
+  scroll-behavior: auto;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+body {
+  background: var(--deep);
+  color: var(--snow);
+  font-family: "Inter Variable", Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--sync);
+  color: #000;
+}
+
+:focus-visible {
+  outline: 2px solid var(--volt);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@layer components {
+  /* ---- Layout ---- */
+  .shell {
+    @apply mx-auto w-full max-w-shell px-gutter;
+  }
+  .section-pad {
+    @apply py-section;
+  }
+
+  /* ---- Typography ---- */
+  .eyebrow {
+    @apply font-sans text-eyebrow font-semibold uppercase text-mist/70;
+  }
+  .eyebrow-green {
+    @apply font-sans text-eyebrow font-semibold uppercase text-sync;
+  }
+  .h-display {
+    @apply font-display uppercase text-snow text-balance;
+  }
+  .body-copy {
+    @apply font-sans text-base leading-relaxed text-mist/80 md:text-lg;
+  }
+
+  /* ---- Buttons ---- */
+  .btn {
+    @apply relative inline-flex items-center justify-center gap-3 overflow-hidden whitespace-nowrap rounded-full px-7 py-4 text-[0.8rem] font-semibold uppercase tracking-[0.18em] transition-colors duration-500 ease-luxe;
+  }
+  .btn-primary {
+    @apply btn bg-sync text-black hover:bg-volt;
+  }
+  .btn-ghost {
+    @apply btn border border-white/25 text-snow hover:border-snow hover:bg-snow hover:text-black;
+  }
+  .btn-light {
+    @apply btn bg-snow text-black hover:bg-sync;
+  }
+
+  /* ---- Image treatment ---- */
+  .photo-frame {
+    @apply relative overflow-hidden bg-charcoal;
+  }
+  .photo-frame::after {
+    /* Unifying dark grade over every photograph */
+    content: "";
+    @apply pointer-events-none absolute inset-0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.55) 100%);
+  }
+
+  .hairline {
+    @apply border-white/10;
+  }
+}
+
+/* Film grain for depth on large dark fields */
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  mix-blend-mode: overlay;
+}
+
+/* Marquee */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  animation: marquee 38s linear infinite;
+}
+
+/* Hide scrollbar utility for horizontal rails */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* Reduced motion: stop everything decorative */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
