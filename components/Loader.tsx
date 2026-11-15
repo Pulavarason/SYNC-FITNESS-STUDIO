@@ -33,12 +33,13 @@ export default function Loader() {
       setCount(Math.round(100 * (1 - Math.pow(1 - p, 3))));
       if (p < 1) raf = requestAnimationFrame(tick);
       else {
-        setTimeout(() => {
-          setVisible(false);
-          try {
-            sessionStorage.setItem(KEY, "1");
-          } catch {}
-        }, 250);
+        // Start the hero animation as soon as the counter reaches 100%; it can
+        // animate behind the loader curtain while the curtain lifts.
+        setReady();
+        setVisible(false);
+        try {
+          sessionStorage.setItem(KEY, "1");
+        } catch {}
       }
     };
     raf = requestAnimationFrame(tick);
