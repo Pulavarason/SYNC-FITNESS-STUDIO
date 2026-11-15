@@ -42,7 +42,7 @@ export default function Hero() {
       {/* Runner image with overlays that keep the copy legible. */}
       <motion.div
         aria-hidden="true"
-        className="absolute inset-x-0 top-[72px] z-0 h-[56.25vw] overflow-hidden sm:inset-0 sm:h-auto"
+        className="absolute inset-0 z-0 overflow-hidden"
         initial={reduced ? false : { opacity: 0, scale: 1.035 }}
         animate={ready ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.035 }}
         transition={{ duration: reduced ? 0 : 1.1, ease: [0.22, 1, 0.36, 1] }}
@@ -53,12 +53,11 @@ export default function Hero() {
           fill
           priority
           sizes="100vw"
-          className="absolute inset-0 h-full w-full object-contain object-center sm:object-cover sm:object-[center_10%]"
+          className="absolute inset-0 h-full w-full object-cover object-[68%_center] sm:object-[center_10%]"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70 sm:hidden" />
       </motion.div>
-      <div className="pointer-events-none absolute inset-0 z-[1] bg-transparent sm:bg-[linear-gradient(90deg,#000_0%,rgba(0,0,0,0.94)_24%,rgba(0,0,0,0.68)_43%,rgba(0,0,0,0.12)_72%,rgba(0,0,0,0.18)_100%)]" />
-      <div className="pointer-events-none absolute inset-0 z-[1] bg-transparent sm:bg-[linear-gradient(0deg,#000_0%,rgba(0,0,0,0.72)_12%,transparent_48%,rgba(0,0,0,0.26)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,#000_0%,rgba(0,0,0,0.94)_24%,rgba(0,0,0,0.68)_43%,rgba(0,0,0,0.12)_72%,rgba(0,0,0,0.18)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(0deg,#000_0%,rgba(0,0,0,0.72)_12%,transparent_48%,rgba(0,0,0,0.26)_100%)]" />
       <div className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_76%_46%,rgba(101,204,0,0.13),transparent_44%)]" />
 
       {/* Copy and training features sit below the image focal point. */}
