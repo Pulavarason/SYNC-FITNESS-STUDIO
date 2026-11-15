@@ -1,51 +1,24 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowUpRight } from "lucide-react";
+import { useLayoutEffect, useRef } from "react";
+import { Activity, ArrowDown, ArrowUpRight, HeartPulse, Target } from "lucide-react";
+import { motion } from "framer-motion";
+import Image from "next/image";
 import gsap from "gsap";
 import MagneticButton from "./MagneticButton";
-import Photo from "./Photo";
 import { SplitReveal } from "./Reveal";
-import { images } from "@/lib/images";
 import { enquiryExternal, enquiryHref, site } from "@/lib/site";
-import { useIsMobile, useReducedMotion, registerGsap } from "@/lib/motion";
+import { useReducedMotion, registerGsap } from "@/lib/motion";
 import { useReady } from "@/lib/ready";
 
-const HeroScene = dynamic(() => import("./HeroScene"), { ssr: false });
-
 export default function Hero() {
-  const sectionRef = useRef<HTMLElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
-  const bgRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const mobile = useIsMobile();
   const ready = useReady();
-  const [inView, setInView] = useState(true);
-  const [show3d, setShow3d] = useState(false);
 
-  // Only mount WebGL when supported
-  useEffect(() => {
-    try {
-      const c = document.createElement("canvas");
-      setShow3d(!!(c.getContext("webgl2") || c.getContext("webgl")));
-    } catch {
-      setShow3d(false);
-    }
-  }, []);
-
-  // Pause 3D when scrolled away
-  useEffect(() => {
-    if (!sectionRef.current) return;
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0 });
-    io.observe(sectionRef.current);
-    return () => io.disconnect();
-  }, []);
-
-  // Entrance for non-split elements + subtle parallax on the backdrop
   useLayoutEffect(() => {
     if (reduced) return;
-    const { ScrollTrigger } = registerGsap();
+    registerGsap();
     const ctx = gsap.context(() => {
       const items = copyRef.current?.querySelectorAll("[data-hero-fade]");
       if (items) {
@@ -54,15 +27,8 @@ export default function Hero() {
           gsap.fromTo(
             items,
             { opacity: 0, y: 28 },
-            { opacity: 1, y: 0, duration: 1, stagger: 0.12, delay: 0.5, ease: "power3.out" }
+            { opacity: 1, y: 0, duration: 1, stagger: 0.12, delay: 0.35, ease: "power3.out" }
           );
-      }
-      if (bgRef.current && sectionRef.current) {
-        gsap.to(bgRef.current, {
-          yPercent: 14,
-          ease: "none",
-          scrollTrigger: { trigger: sectionRef.current, start: "top top", end: "bottom top", scrub: true },
-        });
       }
     });
     return () => ctx.revert();
@@ -71,45 +37,63 @@ export default function Hero() {
   return (
     <section
       id="home"
-      ref={sectionRef}
       className="grain relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-black"
     >
-      {/* Photographic backdrop — heavily graded so type stays the hero */}
-      <div ref={bgRef} className="absolute inset-0 -top-10 -bottom-10 opacity-45">
-        <Photo slot={images.heroBackdrop} className="h-full w-full" showLabel={false} priority />
-      </div>
-      <div className="absolute inset-0 bg-[radial-gradient(80%_70%_at_75%_45%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.65)_70%,#000_100%)]" />
-      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-deep to-transparent" />
+      {/* Runner image with overlays that keep the copy legible. */}
+      <motion.div
+        aria-hidden="true"
+        className="absolute inset-0 z-0 overflow-hidden"
+        initial={reduced ? false : { opacity: 0, scale: 1.035 }}
+        animate={ready ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.035 }}
+        transition={{ duration: reduced ? 0 : 1.1, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Image
+          src="/images/hero-runner.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="absolute inset-0 h-full w-full object-cover object-[58%_center] sm:object-[center_10%]"
+        />
+      </motion.div>
+      <div className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,#000_0%,rgba(0,0,0,0.94)_24%,rgba(0,0,0,0.68)_43%,rgba(0,0,0,0.12)_72%,rgba(0,0,0,0.18)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(0deg,#000_0%,rgba(0,0,0,0.72)_12%,transparent_48%,rgba(0,0,0,0.26)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_76%_46%,rgba(101,204,0,0.13),transparent_44%)]" />
 
-      {/* 3D */}
-      {show3d && (
-        <div className="absolute inset-0">
-          <HeroScene reduced={reduced} mobile={mobile} active={inView && ready} />
-        </div>
-      )}
-
-      {/* Copy */}
-      <div className="shell relative z-10 flex flex-1 flex-col justify-end pb-20 pt-32 sm:pb-28 lg:justify-center lg:pb-16">
+      {/* Copy and training features sit below the image focal point. */}
+      <div className="shell relative z-10 flex flex-1 flex-col justify-end pb-14 pt-12 sm:pb-28 sm:pt-10 lg:justify-center lg:pb-20">
         <div ref={copyRef} className="max-w-3xl">
-          <p data-hero-fade className="eyebrow-green mb-6 flex items-center gap-3">
+          <p data-hero-fade className="eyebrow-green mb-6 flex items-center gap-3 lg:mb-4">
             <span className="h-px w-10 bg-sync" />
             {site.locality} · Chennai
           </p>
 
-          <h1 className="h-display text-display-xl" aria-label="Mind. Body. Power.">
+          <h1 className="h-display text-display-xl lg:text-[clamp(4rem,12vh,8rem)] lg:leading-[0.88]" aria-label="Mind. Body. Power.">
             <SplitReveal as="span" text="MIND." className="block" hold={!ready} />
             <SplitReveal as="span" text="BODY." className="block" hold={!ready} delay={0.12} />
             <SplitReveal as="span" text="POWER." className="block text-sync" hold={!ready} delay={0.24} />
           </h1>
 
-          <p data-hero-fade className="mt-8 text-sm font-semibold uppercase tracking-[0.22em] text-snow sm:text-base">
+          <p data-hero-fade className="mt-8 text-sm font-semibold uppercase tracking-[0.22em] text-snow sm:text-base lg:mt-5">
             Sync your body. Unlock your potential.
           </p>
-          <p data-hero-fade className="body-copy mt-4 max-w-md">
+          <p data-hero-fade className="body-copy mt-4 max-w-md lg:mt-3">
             Discover a better way to train, build strength and transform your lifestyle.
           </p>
 
-          <div data-hero-fade className="mt-10 flex flex-col gap-4 sm:flex-row">
+          <div data-hero-fade className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-snow/65 sm:text-[0.65rem] lg:mt-4">
+            <span className="inline-flex items-center gap-2">
+              <Target className="h-3.5 w-3.5 text-sync" /> Strength training
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <Activity className="h-3.5 w-3.5 text-sync" /> Cardio conditioning
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <HeartPulse className="h-3.5 w-3.5 text-sync" /> Everyday fitness
+            </span>
+          </div>
+
+          <div data-hero-fade className="mt-8 flex flex-col gap-4 sm:flex-row lg:mt-5">
             <MagneticButton href={enquiryHref} external={enquiryExternal}>
               Start your journey <ArrowUpRight className="h-4 w-4" />
             </MagneticButton>
@@ -121,7 +105,7 @@ export default function Hero() {
       </div>
 
       {/* Scroll cue */}
-      <div className="shell absolute inset-x-0 bottom-6 z-10 flex items-center justify-between text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-mist/50">
+      <div className="shell absolute inset-x-0 bottom-5 z-10 flex items-center justify-between text-[0.6rem] font-semibold uppercase tracking-[0.26em] text-mist/50 sm:bottom-6 sm:text-[0.65rem] sm:tracking-[0.3em]">
         <span className="hidden sm:inline">{site.tagline}</span>
         <span className="hidden items-center gap-3 sm:flex">
           Scroll <ArrowDown className="h-3.5 w-3.5 animate-bounce text-sync" />
